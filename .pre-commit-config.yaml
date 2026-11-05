@@ -1,0 +1,26 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-yaml
+      - id: check-xml
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: check-merge-conflict
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.4
+    hooks:
+      - id: gitleaks
+
+  # Runs only when .java files are staged; needs JDK 21 and Maven installed locally.
+  - repo: local
+    hooks:
+      - id: spotless-check
+        name: spotless check (google-java-format)
+        entry: backend/mvnw -B -q -f backend/pom.xml spotless:check
+        language: system
+        files: \.java$
+        pass_filenames: false

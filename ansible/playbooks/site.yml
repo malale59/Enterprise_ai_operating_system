@@ -1,0 +1,27 @@
+---
+# Module 0 verification playbook.
+# Purpose: prove Ansible can decrypt the vault and use a secret safely,
+# WITHOUT ever printing the secret value. Real deployment logic starts in Module 3.
+
+- name: Verify vault decryption works
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - ../vault/secrets.yml
+
+  tasks:
+    - name: Confirm db_password variable is defined (never print its value)
+      assert:
+        that:
+          - db_password is defined
+          - db_password | length > 0
+        fail_msg: "db_password is missing or empty, check ansible/vault/secrets.yml"
+        success_msg: "Vault decrypted successfully and db_password is present."
+
+    - name: Confirm jwt_secret variable is defined (never print its value)
+      assert:
+        that:
+          - jwt_secret is defined
+          - jwt_secret | length > 0
+        fail_msg: "jwt_secret is missing or empty, check ansible/vault/secrets.yml"
+        success_msg: "jwt_secret is present."

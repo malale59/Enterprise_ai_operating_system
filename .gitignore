@@ -1,0 +1,31 @@
+# Environments / secrets
+.env
+.env.*
+!.env.example
+*.vault_pass
+ansible/vault/*.yml
+!ansible/vault/README.md
+
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+hs_err_pid*
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# Docker
+docker-compose.override.yml
+
+# OS
+.DS_Store
+
+# Logs
+*.log
