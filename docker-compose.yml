@@ -1,6 +1,6 @@
 # Base compose file: this is what production runs, unmodified.
-# No ports are published for the database here on purpose.
-# Local dev access lives only in docker-compose.override.yml (gitignored).
+# Only nginx publishes a port. The database and the API are reachable
+# only from inside the eaos_internal network.
 
 services:
   postgres:
@@ -19,6 +19,42 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  api:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: postgres          # the service name, not localhost
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB in .env}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    mem_limit: 768m                    # first estimate; we measure the real use below
+    networks:
+      - eaos_internal
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"                        # the only published port in the stack
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - eaos_internal
 
 networks:
   eaos_internal:
