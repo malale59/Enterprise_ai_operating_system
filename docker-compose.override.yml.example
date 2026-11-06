@@ -1,0 +1,8 @@
+# DEV ONLY. Copy to docker-compose.override.yml (gitignored) to activate.
+# Compose merges it over docker-compose.yml automatically when it exists.
+# Production never has this file, so the database stays unreachable from outside there.
+
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:5432:5432"   # reachable from this machine only, not from the network
